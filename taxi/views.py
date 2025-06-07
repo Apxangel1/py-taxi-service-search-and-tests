@@ -56,7 +56,7 @@ class ManufacturerListView(LoginRequiredMixin, generic.ListView):
         name = self.request.GET.get("name")
         if name:
             return queryset.filter(name__icontains=name)
-        return self.queryset
+        return queryset
 
 
 class ManufacturerCreateView(LoginRequiredMixin, generic.CreateView):
