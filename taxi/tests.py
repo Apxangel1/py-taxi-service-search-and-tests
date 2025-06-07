@@ -15,21 +15,23 @@ url_test_cases = {
     reverse("taxi:driver-create"),
 }
 url_kwarg_test_cases = {
-    reverse("taxi:driver-detail", kwargs={'pk': 1}),
-    reverse("taxi:car-detail", kwargs={'pk': 1}),
-    reverse("taxi:manufacturer-update", kwargs={'pk': 1}),
-    reverse("taxi:car-update", kwargs={'pk': 1}),
-    reverse("taxi:driver-update", kwargs={'pk': 1}),
-    reverse("taxi:driver-delete", kwargs={'pk': 1}),
-    reverse("taxi:car-delete", kwargs={'pk': 1}),
-    reverse("taxi:manufacturer-delete", kwargs={'pk': 1}),
+    reverse("taxi:driver-detail", kwargs={"pk": 1}),
+    reverse("taxi:car-detail", kwargs={"pk": 1}),
+    reverse("taxi:manufacturer-update", kwargs={"pk": 1}),
+    reverse("taxi:car-update", kwargs={"pk": 1}),
+    reverse("taxi:driver-update", kwargs={"pk": 1}),
+    reverse("taxi:driver-delete", kwargs={"pk": 1}),
+    reverse("taxi:car-delete", kwargs={"pk": 1}),
+    reverse("taxi:manufacturer-delete", kwargs={"pk": 1}),
 }
+
 
 class ManufacturerStrReprTest(TestCase):
     def test_model(self):
         obj = Manufacturer.objects.create(name="Bombastic", country="US")
         self.assertEqual(obj.name, "Bombastic")
         self.assertEqual(str(obj), "Bombastic US")
+
 
 class LoginRequiredTests(TestCase):
     def setUp(self):
@@ -39,6 +41,7 @@ class LoginRequiredTests(TestCase):
         for test_reverse_url in url_test_cases:
             response = self.client.get(test_reverse_url)
             self.assertNotEqual(response.status_code, 200)
+
 
 class PagesTests(TestCase):
     def setUp(self):
@@ -62,6 +65,7 @@ class PagesTests(TestCase):
             response = self.client.get(test_case)
             self.assertEqual(response.status_code, 200)
 
+
 class TestLicenseNumberValidator(TestCase):
     def test_license_validation(self):
         with self.assertRaises(ValidationError):
@@ -71,6 +75,7 @@ class TestLicenseNumberValidator(TestCase):
             validate_license_number("abc.....")
             validate_license_number("ilovecar")
 
+
 class TestSearchForm(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create(
@@ -79,19 +84,52 @@ class TestSearchForm(TestCase):
         )
         self.client.force_login(self.user)
 
-        get_user_model().objects.create(username="driver", license_number="DRV33123")
-        get_user_model().objects.create(username="rider", license_number="RDR69852")
+        get_user_model().objects.create(
+            username="driver",
+            license_number="DRV33123"
+        )
+        get_user_model().objects.create(
+            username="rider",
+            license_number="RDR69852"
+        )
 
-        self.manufacturer1 = Manufacturer.objects.create(name="Ford", country="USA")
-        self.manufacturer2 = Manufacturer.objects.create(name="Bombastic", country="YOUESAY")
+        self.manufacturer1 = Manufacturer.objects.create(
+            name="Ford",
+            country="USA"
+        )
+        self.manufacturer2 = Manufacturer.objects.create(
+            name="Bombastic",
+            country="YOUESAY"
+        )
 
-        self.car1 = Car.objects.create(model="Mustang", manufacturer=self.manufacturer1)
-        self.car2 = Car.objects.create(model="Focus", manufacturer=self.manufacturer1)
-        self.car3 = Car.objects.create(model="Fiesta", manufacturer=self.manufacturer1)
-        self.car3 = Car.objects.create(model="Falafel", manufacturer=self.manufacturer1)
-        self.car3 = Car.objects.create(model="Frikadelen", manufacturer=self.manufacturer1)
-        self.car3 = Car.objects.create(model="Form", manufacturer=self.manufacturer1)
-        self.car3 = Car.objects.create(model="Fork", manufacturer=self.manufacturer1)
+        self.car1 = Car.objects.create(
+            model="Mustang",
+            manufacturer=self.manufacturer1
+        )
+        self.car2 = Car.objects.create(
+            model="Focus",
+            manufacturer=self.manufacturer1
+        )
+        self.car3 = Car.objects.create(
+            model="Fiesta",
+            manufacturer=self.manufacturer1
+        )
+        self.car3 = Car.objects.create(
+            model="Falafel",
+            manufacturer=self.manufacturer1
+        )
+        self.car3 = Car.objects.create(
+            model="Frikadelen",
+            manufacturer=self.manufacturer1
+        )
+        self.car3 = Car.objects.create(
+            model="Form",
+            manufacturer=self.manufacturer1
+        )
+        self.car3 = Car.objects.create(
+            model="Fork",
+            manufacturer=self.manufacturer1
+        )
 
     def test_search_returns_matching_car(self):
         response = self.client.get(
@@ -122,11 +160,15 @@ class TestSearchForm(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "rider")
-        self.assertNotContains(response, '<a href="/drivers/2/">driver', html=True)
+        self.assertNotContains(
+            response,
+            '<a href="/drivers/2/">driver',
+            html=True
+        )
 
     def test_search_pagination_works_with_query_transformer(self):
         response = self.client.get(
-            reverse("taxi:car-list"),{"model": "f", "page": 2}  # partial, case-insensitive match
+            reverse("taxi:car-list"), {"model": "f", "page": 2}
         )
         self.assertEqual(response.status_code, 200)
 
@@ -135,4 +177,7 @@ class TestSearchForm(TestCase):
         self.assertContains(response, next_page_url)
         self.assertContains(response, "Fork")
         self.assertNotContains(response, "Mustang")
-        self.assertEqual(response.request["QUERY_STRING"],"model=f&page=2")
+        self.assertEqual(
+            response.request["QUERY_STRING"],
+            "model=f&page=2"
+        )
